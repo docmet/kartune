@@ -16,6 +16,10 @@ if settings.CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+from app.api import auth
+
+app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}

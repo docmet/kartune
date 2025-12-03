@@ -9,6 +9,8 @@ export const metadata: Metadata = {
     description: "AI-powered karting data collection and setup optimization",
 };
 
+import { AuthProvider } from "@/lib/auth-context";
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -16,7 +18,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={inter.className}>{children}</body>
+            <body className={inter.className}>
+                <AuthProvider>{children}</AuthProvider>
+            </body>
         </html>
     );
 }
