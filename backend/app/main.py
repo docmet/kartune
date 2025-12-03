@@ -16,9 +16,12 @@ if settings.CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-from app.api import auth
+from app.api import auth, teams, drivers, equipment
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(teams.router, prefix=f"{settings.API_V1_STR}/teams", tags=["teams"])
+app.include_router(drivers.router, prefix=f"{settings.API_V1_STR}/drivers", tags=["drivers"])
+app.include_router(equipment.router, prefix=f"{settings.API_V1_STR}/equipment", tags=["equipment"])
 
 @app.get("/health")
 def health_check():
