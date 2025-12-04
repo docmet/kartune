@@ -29,7 +29,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-background">
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden geometric-bg">
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
                 {/* Background Image with Overlay */}
                 <div
                     className="absolute inset-0 z-0"
@@ -40,7 +40,10 @@ export default function Home() {
                         backgroundRepeat: 'no-repeat',
                     }}
                 >
-                    <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background" />
+                    {/* Reduced opacity to show more of the telemetry image */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background/90" />
+                    {/* Geometric pattern overlay */}
+                    <div className="absolute inset-0 geometric-bg opacity-30" />
                 </div>
 
                 {/* Content */}
@@ -151,7 +154,7 @@ export default function Home() {
             {/* Footer */}
             <footer className="py-8 px-4 border-t border-border bg-card">
                 <div className="container mx-auto text-center text-muted-foreground">
-                    <p>&copy; 2024 KarTune. Built for racers, by racers.</p>
+                    <p>&copy; 2025 KarTune. Built for racers, by racers.</p>
                 </div>
             </footer>
         </div>
