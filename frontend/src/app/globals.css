@@ -2,26 +2,177 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    /* Light theme (fallback - we'll primarily use dark) */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 0 84% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 217.2 91.2% 59.8%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark theme - Racing inspired */
+    --background: 222 47% 6%;
+    /* #0a0e1a - deep dark blue-gray */
+    --foreground: 210 40% 98%;
+    /* #f1f5f9 - near white */
+
+    --card: 220 39% 11%;
+    /* #151b2e - slightly lighter surface */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 220 39% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 0 84% 60%;
+    /* #ef4444 - racing red */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 91% 60%;
+    /* #3b82f6 - electric blue */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    /* #1e2638 - muted surface */
+    --muted-foreground: 215 20% 65%;
+    /* #94a3b8 - muted text */
+
+    --accent: 189 94% 43%;
+    /* #06b6d4 - cyan accent */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 0 84% 60%;
+
+    --chart-1: 0 84% 60%;
+    /* Racing red */
+    --chart-2: 217 91% 60%;
+    /* Electric blue */
+    --chart-3: 189 94% 43%;
+    /* Cyan */
+    --chart-4: 142 76% 36%;
+    /* Green */
+    --chart-5: 48 96% 53%;
+    /* Yellow */
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Geometric background pattern inspired by docmet.com */
+@layer utilities {
+  .geometric-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .geometric-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      linear-gradient(135deg,
+        transparent 0%,
+        transparent 48%,
+        rgba(100, 116, 139, 0.03) 48%,
+        rgba(100, 116, 139, 0.03) 52%,
+        transparent 52%,
+        transparent 100%);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .geometric-bg>* {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Gradient overlay for hero sections */
+  .hero-gradient {
+    background: linear-gradient(135deg,
+        hsl(var(--background)) 0%,
+        hsl(220 39% 8%) 50%,
+        hsl(var(--background)) 100%);
+  }
+
+  /* Glass morphism effect for cards */
+  .glass-card {
+    background: rgba(21, 27, 46, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(100, 116, 139, 0.1);
+  }
+
+  /* Glow effect for interactive elements */
+  .glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Custom scrollbar for dark theme */
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
 }
