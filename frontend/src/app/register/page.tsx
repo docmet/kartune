@@ -1,11 +1,13 @@
+```javascript
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { User } from "@/types";
 
@@ -27,8 +29,15 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
     const router = useRouter();
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+            router.push("/dashboard");
+        }
+    }, [authLoading, isAuthenticated, router]);
 
     const {
         register,
@@ -53,6 +62,14 @@ export default function RegisterPage() {
             setIsLoading(false);
         }
     };
+
+    if (authLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="text-xl">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

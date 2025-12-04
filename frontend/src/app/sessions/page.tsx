@@ -5,9 +5,10 @@ import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { Session, Driver, Track, TelemetryAnalysis } from "@/types";
+import Navigation from "@/components/Navigation";
 
 export default function SessionsPage() {
-    const { user, logout, isLoading, isAuthenticated } = useAuth();
+    const { user, isLoading, isAuthenticated } = useAuth();
     const router = useRouter();
     const [sessions, setSessions] = useState<Session[]>([]);
     const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -103,38 +104,7 @@ export default function SessionsPage() {
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="bg-white shadow dark:bg-gray-800">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex flex-shrink-0 items-center">
-                                <span className="text-xl font-bold text-gray-800 dark:text-white">
-                                    KarTune
-                                </span>
-                            </div>
-                            <div className="ml-6 flex space-x-4 items-center">
-                                <a href="/dashboard" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                                    Dashboard
-                                </a>
-                                <a href="/sessions" className="text-blue-600 font-semibold dark:text-blue-400">
-                                    Sessions
-                                </a>
-                            </div>
-                        </div>
-                        <div className="flex items-center">
-                            <span className="mr-4 text-sm text-gray-500 dark:text-gray-400">
-                                {user.full_name}
-                            </span>
-                            <button
-                                onClick={logout}
-                                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500"
-                            >
-                                Sign out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Navigation />
 
             <div className="py-10">
                 <header>

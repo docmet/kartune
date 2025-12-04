@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import api from "@/lib/api";
 import { AuthResponse } from "@/types";
@@ -17,9 +18,16 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-    const { login } = useAuth();
+    const { login, isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
     const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading && isAuthenticated) {
+            router.push("/dashboard");
+        }
+    }, [isLoading, isAuthenticated, router]);
 
     const {
         register,
@@ -30,7 +38,7 @@ export default function LoginPage() {
     });
 
     const onSubmit = async (data: LoginFormValues) => {
-        setIsLoading(true);
+        setIsSubmitting(true);
         setError(null);
         try {
             const response = await api.post<AuthResponse>("/api/auth/login", data);
@@ -38,9 +46,17 @@ export default function LoginPage() {
         } catch (err: any) {
             setError(err.response?.data?.detail || "Failed to login");
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="text-xl">Loading...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -96,10 +112,10 @@ export default function LoginPage() {
                     <div>
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isSubmitting}
                             className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50"
                         >
-                            {isLoading ? "Signing in..." : "Sign in"}
+                            {isSubmitting ? "Signing in..." : "Sign in"}
                         </button>
                     </div>
                 </form>

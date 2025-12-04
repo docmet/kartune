@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Navigation from "@/components/Navigation";
 
 export default function DashboardPage() {
     const { user, logout, isLoading, isAuthenticated } = useAuth();
@@ -24,30 +25,7 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="bg-white shadow dark:bg-gray-800">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 justify-between">
-                        <div className="flex">
-                            <div className="flex flex-shrink-0 items-center">
-                                <span className="text-xl font-bold text-gray-800 dark:text-white">
-                                    KarTune
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex items-center">
-                            <span className="mr-4 text-sm text-gray-500 dark:text-gray-400">
-                                Welcome, {user.full_name}
-                            </span>
-                            <button
-                                onClick={logout}
-                                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                            >
-                                Sign out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Navigation />
 
             <div className="py-10">
                 <header>
