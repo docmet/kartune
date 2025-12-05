@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+// In production (Coolify), NEXT_PUBLIC_API_URL should be empty or not set
+// because nginx handles the /api routing. In development, it points to backend.
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const baseURL = apiUrl === '/api' ? '' : apiUrl;
+
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },
