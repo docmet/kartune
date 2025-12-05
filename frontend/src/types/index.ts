@@ -1,3 +1,17 @@
+export interface User {
+    id: number;
+    email: string;
+    name: string;
+    full_name?: string;
+    role?: string;
+    team_id?: number;
+}
+
+export interface AuthResponse {
+    access_token: string;
+    token_type: string;
+}
+
 export interface Track {
     id: number;
     name: string;
