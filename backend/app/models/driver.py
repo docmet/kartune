@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Date, Text
+from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.database import Base
+
 
 class Driver(Base):
     __tablename__ = "drivers"

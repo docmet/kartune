@@ -1,6 +1,8 @@
-from typing import Optional
 from datetime import date
+from typing import Optional
+
 from pydantic import BaseModel
+
 
 class DriverBase(BaseModel):
     name: str
@@ -11,8 +13,10 @@ class DriverBase(BaseModel):
     experience_level: Optional[str] = None
     notes: Optional[str] = None
 
+
 class DriverCreate(DriverBase):
     team_id: int
+
 
 class DriverUpdate(BaseModel):
     name: Optional[str] = None
@@ -23,9 +27,10 @@ class DriverUpdate(BaseModel):
     experience_level: Optional[str] = None
     notes: Optional[str] = None
 
+
 class DriverResponse(DriverBase):
     id: int
     team_id: int
-    
+
     class Config:
         from_attributes = True

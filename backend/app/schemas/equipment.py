@@ -1,5 +1,7 @@
 from typing import Optional
+
 from pydantic import BaseModel
+
 
 class KartBase(BaseModel):
     chassis_brand: str
@@ -9,8 +11,10 @@ class KartBase(BaseModel):
     category: Optional[str] = None
     notes: Optional[str] = None
 
+
 class KartCreate(KartBase):
     team_id: int
+
 
 class KartUpdate(BaseModel):
     chassis_brand: Optional[str] = None
@@ -20,12 +24,14 @@ class KartUpdate(BaseModel):
     category: Optional[str] = None
     notes: Optional[str] = None
 
+
 class KartResponse(KartBase):
     id: int
     team_id: int
-    
+
     class Config:
         from_attributes = True
+
 
 class EngineBase(BaseModel):
     brand: str
@@ -35,8 +41,10 @@ class EngineBase(BaseModel):
     hours_since_rebuild: Optional[int] = None
     notes: Optional[str] = None
 
+
 class EngineCreate(EngineBase):
     team_id: int
+
 
 class EngineUpdate(BaseModel):
     brand: Optional[str] = None
@@ -46,9 +54,10 @@ class EngineUpdate(BaseModel):
     hours_since_rebuild: Optional[int] = None
     notes: Optional[str] = None
 
+
 class EngineResponse(EngineBase):
     id: int
     team_id: int
-    
+
     class Config:
         from_attributes = True

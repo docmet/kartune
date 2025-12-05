@@ -1,11 +1,13 @@
 """
 Seed script to create test data for development
 """
-import requests
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
+
+import requests
 
 BASE_URL = "http://localhost/api"
+
 
 def seed_data():
     # Register a test user
@@ -17,33 +19,27 @@ def seed_data():
             "password": "demo123",
             "full_name": "Demo User",
             "team_name": "Demo Racing Team",
-            "country": "US"
-        }
+            "country": "US",
+        },
     )
-    
+
     if register_response.status_code != 200:
         print(f"User might already exist: {register_response.json()}")
-    
+
     # Login
     print("Logging in...")
-    login_response = requests.post(
-        f"{BASE_URL}/auth/login",
-        json={
-            "email": "demo@kartune.com",
-            "password": "demo123"
-        }
-    )
-    
+    login_response = requests.post(f"{BASE_URL}/auth/login", json={"email": "demo@kartune.com", "password": "demo123"})
+
     token = login_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
-    
+
     # Get user info
     me_response = requests.get(f"{BASE_URL}/auth/me", headers=headers)
     user = me_response.json()
     team_id = user["team_id"]
-    
+
     print(f"Logged in as {user['full_name']} (Team ID: {team_id})")
-    
+
     # Create drivers
     print("\nCreating drivers...")
     drivers = []
@@ -57,13 +53,13 @@ def seed_data():
                 "team_id": team_id,
                 "weight_kg": random.uniform(60, 80),
                 "height_cm": random.uniform(160, 185),
-                "experience_level": random.choice(["beginner", "intermediate", "advanced"])
-            }
+                "experience_level": random.choice(["beginner", "intermediate", "advanced"]),
+            },
         )
         if response.status_code == 201:
             drivers.append(response.json())
             print(f"  Created driver: {name}")
-    
+
     # Create tracks
     print("\nCreating tracks...")
     tracks = []
@@ -73,15 +69,11 @@ def seed_data():
         {"name": "Genk", "location": "Genk", "country": "Belgium", "length_meters": 1360},
     ]
     for track in track_data:
-        response = requests.post(
-            f"{BASE_URL}/tracks/",
-            headers=headers,
-            json=track
-        )
+        response = requests.post(f"{BASE_URL}/tracks/", headers=headers, json=track)
         if response.status_code == 201:
             tracks.append(response.json())
             print(f"  Created track: {track['name']}")
-    
+
     # Create karts
     print("\nCreating karts...")
     karts = []
@@ -95,13 +87,13 @@ def seed_data():
                 "chassis_brand": brand,
                 "chassis_model": "Racer 401",
                 "year": 2024,
-                "category": "OK"
-            }
+                "category": "OK",
+            },
         )
         if response.status_code == 201:
             karts.append(response.json())
             print(f"  Created kart: {brand}")
-    
+
     # Create engines
     print("\nCreating engines...")
     engines = []
@@ -110,30 +102,25 @@ def seed_data():
         response = requests.post(
             f"{BASE_URL}/equipment/engines",
             headers=headers,
-            json={
-                "team_id": team_id,
-                "brand": brand,
-                "model": "X30",
-                "hours_since_rebuild": random.randint(0, 20)
-            }
+            json={"team_id": team_id, "brand": brand, "model": "X30", "hours_since_rebuild": random.randint(0, 20)},
         )
         if response.status_code == 201:
             engines.append(response.json())
             print(f"  Created engine: {brand}")
-    
+
     # Create sessions
     print("\nCreating sessions...")
     sessions = []
     session_types = ["practice", "qualifying", "race"]
-    
+
     for i in range(5):
         driver = random.choice(drivers)
         track = random.choice(tracks)
         kart = random.choice(karts) if karts else None
         engine = random.choice(engines) if engines else None
-        
+
         session_date = datetime.now() - timedelta(days=random.randint(0, 30))
-        
+
         response = requests.post(
             f"{BASE_URL}/sessions/",
             headers=headers,
@@ -148,13 +135,13 @@ def seed_data():
                 "air_temp_celsius": random.uniform(15, 30),
                 "track_temp_celsius": random.uniform(20, 40),
                 "weather_condition": random.choice(["sunny", "cloudy", "overcast"]),
-                "track_condition": "dry"
-            }
+                "track_condition": "dry",
+            },
         )
         if response.status_code == 201:
             sessions.append(response.json())
             print(f"  Created session: {driver['name']} at {track['name']}")
-    
+
     print("\n✅ Seed data created successfully!")
     print(f"   - {len(drivers)} drivers")
     print(f"   - {len(tracks)} tracks")
@@ -162,6 +149,7 @@ def seed_data():
     print(f"   - {len(engines)} engines")
     print(f"   - {len(sessions)} sessions")
     print("\nLogin with: demo@kartune.com / demo123")
+
 
 if __name__ == "__main__":
     seed_data()

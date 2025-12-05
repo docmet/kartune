@@ -1,5 +1,7 @@
 from typing import Optional
+
 from pydantic import BaseModel
+
 
 class TrackBase(BaseModel):
     name: str
@@ -9,8 +11,10 @@ class TrackBase(BaseModel):
     layout_image_url: Optional[str] = None
     notes: Optional[str] = None
 
+
 class TrackCreate(TrackBase):
     pass
+
 
 class TrackUpdate(BaseModel):
     name: Optional[str] = None
@@ -20,8 +24,9 @@ class TrackUpdate(BaseModel):
     layout_image_url: Optional[str] = None
     notes: Optional[str] = None
 
+
 class TrackResponse(TrackBase):
     id: int
-    
+
     class Config:
         from_attributes = True

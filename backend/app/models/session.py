@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Text, JSON
+from sqlalchemy import JSON, Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.database import Base
+
 
 class Session(Base):
     __tablename__ = "sessions"
@@ -12,10 +14,10 @@ class Session(Base):
     kart_id = Column(Integer, ForeignKey("karts.id"))
     engine_id = Column(Integer, ForeignKey("engines.id"))
     track_id = Column(Integer, ForeignKey("tracks.id"), nullable=False)
-    
+
     session_date = Column(DateTime(timezone=True), nullable=False)
     session_type = Column(String)  # practice/qualifying/race/simulator
-    data_source = Column(String)   # manual/alfano/micron5/micron6/kartsim
+    data_source = Column(String)  # manual/alfano/micron5/micron6/kartsim
 
     # Weather & Track Conditions
     air_temp_celsius = Column(Float)
@@ -25,7 +27,7 @@ class Session(Base):
     wind_speed_kmh = Column(Float)
     wind_direction = Column(String)
     weather_condition = Column(String)  # sunny/cloudy/rain/etc
-    track_condition = Column(String)    # dry/damp/wet/rubber_buildup
+    track_condition = Column(String)  # dry/damp/wet/rubber_buildup
     track_grip_level = Column(Integer)  # 1-10
 
     # Setup Data (JSON - flexible)

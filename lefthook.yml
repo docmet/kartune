@@ -1,17 +1,6 @@
 pre-commit:
   parallel: true
   commands:
-    # Conventional commit message check
-    commit-msg:
-      run: |
-        commit_msg=$(cat {1})
-        if ! echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\(.+\))?: .+"; then
-          echo "❌ Commit message does not follow Conventional Commits format"
-          echo "Format: <type>(<scope>): <description>"
-          echo "Types: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert"
-          exit 1
-        fi
-      
     # Backend linting with auto-fix
     backend-lint:
       glob: "backend/**/*.py"

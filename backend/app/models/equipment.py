@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Date, Text
+from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from app.core.database import Base
+
 
 class Kart(Base):
     __tablename__ = "karts"
@@ -18,6 +20,7 @@ class Kart(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     team = relationship("Team", backref="karts")
+
 
 class Engine(Base):
     __tablename__ = "engines"

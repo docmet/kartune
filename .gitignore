@@ -28,6 +28,11 @@ venv/
 ENV/
 env/
 
+# Linting/Type checking caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
 # Node
 node_modules/
 npm-debug.log
