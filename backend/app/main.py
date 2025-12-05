@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.api import auth, teams, drivers, equipment, tracks, sessions
 
 app = FastAPI(
     title=settings.PROJECT_NAME
@@ -16,7 +17,6 @@ if settings.CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-from app.api import auth, teams, drivers, equipment, tracks, sessions
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(teams.router, prefix=f"{settings.API_V1_STR}/teams", tags=["teams"])

@@ -1,0 +1,41 @@
+pre-commit:
+  parallel: true
+  commands:
+    # Conventional commit message check
+    commit-msg:
+      run: |
+        commit_msg=$(cat {1})
+        if ! echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\(.+\))?: .+"; then
+          echo "❌ Commit message does not follow Conventional Commits format"
+          echo "Format: <type>(<scope>): <description>"
+          echo "Types: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert"
+          exit 1
+        fi
+      
+    # Backend linting with auto-fix
+    backend-lint:
+      glob: "backend/**/*.py"
+      run: |
+        echo "🔍 Running ruff on backend..."
+        docker compose exec -T backend ruff check . --fix
+        docker compose exec -T backend ruff format .
+        
+    # Backend type checking
+    backend-typecheck:
+      glob: "backend/**/*.py"
+      run: |
+        echo "🔍 Type checking backend..."
+        docker compose exec -T backend mypy . --ignore-missing-imports || true
+        
+    # Frontend linting
+    frontend-lint:
+      glob: "frontend/**/*.{ts,tsx,js,jsx}"
+      run: |
+        echo "🔍 Linting frontend..."
+        docker compose exec -T frontend npm run lint -- --fix || true
+        
+    # Stage auto-fixed files
+    stage-fixes:
+      run: |
+        echo "📝 Staging auto-fixed files..."
+        git add -u

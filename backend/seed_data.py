@@ -155,13 +155,13 @@ def seed_data():
             sessions.append(response.json())
             print(f"  Created session: {driver['name']} at {track['name']}")
     
-    print(f"\n✅ Seed data created successfully!")
+    print("\n✅ Seed data created successfully!")
     print(f"   - {len(drivers)} drivers")
     print(f"   - {len(tracks)} tracks")
     print(f"   - {len(karts)} karts")
     print(f"   - {len(engines)} engines")
     print(f"   - {len(sessions)} sessions")
-    print(f"\nLogin with: demo@kartune.com / demo123")
+    print("\nLogin with: demo@kartune.com / demo123")
 
 if __name__ == "__main__":
     seed_data()

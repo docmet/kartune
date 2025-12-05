@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.api import deps
 from app.models.user import User
 from app.models.team import Team
-from app.schemas.team import TeamCreate, TeamUpdate, TeamResponse
+from app.schemas.team import TeamUpdate, TeamResponse
 
 router = APIRouter()
 

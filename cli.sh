@@ -16,7 +16,9 @@ function usage() {
     echo "  dev build       Rebuild containers"
     echo "  dev shell [svc] Enter container shell"
     echo "  test [svc]      Run tests (backend|frontend|all)"
-    echo "  lint [svc]      Run linters (backend|frontend|all)"
+    echo "  lint [svc] [--fix]  Run linters (backend|frontend|all)"
+    echo "  format [svc]    Format code (backend|frontend|all)"
+    echo "  type-check [svc] Type check code (backend|frontend|all)"
     echo "  db migrate      Run database migrations"
     echo "  db seed         Seed database with test data"
     exit 1
@@ -67,13 +69,40 @@ case $COMMAND in
         ;;
     lint)
         TARGET=${2:-all}
+        FIX_FLAG=${3:-}
         if [ "$TARGET" == "backend" ] || [ "$TARGET" == "all" ]; then
             echo "Linting backend..."
-            $DOCKER_COMPOSE exec backend ruff check .
+            if [ "$FIX_FLAG" == "--fix" ]; then
+                $DOCKER_COMPOSE exec backend ruff check . --fix
+            else
+                $DOCKER_COMPOSE exec backend ruff check .
+            fi
         fi
         if [ "$TARGET" == "frontend" ] || [ "$TARGET" == "all" ]; then
             echo "Linting frontend..."
             $DOCKER_COMPOSE exec frontend npm run lint
+        fi
+        ;;
+    format)
+        TARGET=${2:-all}
+        if [ "$TARGET" == "backend" ] || [ "$TARGET" == "all" ]; then
+            echo "Formatting backend..."
+            $DOCKER_COMPOSE exec backend ruff format .
+        fi
+        if [ "$TARGET" == "frontend" ] || [ "$TARGET" == "all" ]; then
+            echo "Formatting frontend..."
+            $DOCKER_COMPOSE exec frontend npm run lint -- --fix
+        fi
+        ;;
+    type-check)
+        TARGET=${2:-all}
+        if [ "$TARGET" == "backend" ] || [ "$TARGET" == "all" ]; then
+            echo "Type checking backend..."
+            $DOCKER_COMPOSE exec backend mypy . --ignore-missing-imports
+        fi
+        if [ "$TARGET" == "frontend" ] || [ "$TARGET" == "all" ]; then
+            echo "Type checking frontend..."
+            $DOCKER_COMPOSE exec frontend npm run type-check
         fi
         ;;
     db)
