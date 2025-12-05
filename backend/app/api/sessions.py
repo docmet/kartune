@@ -132,11 +132,11 @@ async def upload_telemetry(
         f.write(content)
 
     # Update session with file path
-    session.telemetry_file_path = file_path
+    session.telemetry_file_path = str(file_path)  # type: ignore[assignment]
 
     # Analyze telemetry
     analyzer = TelemetryAnalyzer()
-    analysis = analyzer.analyze_file(file_path, file.filename)
+    analysis = analyzer.analyze_file(file_path, file.filename or "unknown")
 
     # Update session with analysis results
     session.best_lap_time_ms = analysis["best_lap_time_ms"]
@@ -165,6 +165,7 @@ def get_session_analysis(
 
     # Re-analyze the file
     analyzer = TelemetryAnalyzer()
-    analysis = analyzer.analyze_file(session.telemetry_file_path, os.path.basename(session.telemetry_file_path))
+    file_path_str = str(session.telemetry_file_path)
+    analysis = analyzer.analyze_file(file_path_str, os.path.basename(file_path_str))
 
     return TelemetryAnalysis(session_id=session_id, **analysis)

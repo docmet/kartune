@@ -46,7 +46,7 @@ def register(user_in: UserCreate, db: Session = Depends(deps.get_db)):
 @router.post("/login", response_model=Token)
 def login(form_data: UserLogin, db: Session = Depends(deps.get_db)):
     user = db.query(User).filter(User.email == form_data.email).first()
-    if not user or not security.verify_password(form_data.password, user.password_hash):
+    if not user or not security.verify_password(form_data.password, str(user.password_hash)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
