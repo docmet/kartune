@@ -1,15 +1,18 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB:-kartune}
+      POSTGRES_USER: ${POSTGRES_USER:-kartune}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kartune} -d ${POSTGRES_DB:-kartune}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -18,32 +21,34 @@ services:
     restart: always
 
   backend:
-    image: ghcr.io/docmetsystems/kartune-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
       JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS}
     volumes:
       - upload_data:/app/uploads
+    expose:
+      - "8000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: always
 
   frontend:
-    image: ghcr.io/docmetsystems/kartune-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-    restart: always
-
-  nginx:
-    image: nginx:alpine
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
+    expose:
+      - "3000"
     depends_on:
-      - frontend
       - backend
     restart: always
 
