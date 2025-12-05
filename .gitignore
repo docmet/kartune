@@ -33,6 +33,10 @@ env/
 .ruff_cache/
 .pytest_cache/
 
+# Test databases
+*.db
+test.db
+
 # Node
 node_modules/
 npm-debug.log
