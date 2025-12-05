@@ -21,4 +21,8 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Copy and set permissions for startup script
+COPY start.sh .
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
