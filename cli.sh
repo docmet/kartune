@@ -98,7 +98,7 @@ case $COMMAND in
         TARGET=${2:-all}
         if [ "$TARGET" == "backend" ] || [ "$TARGET" == "all" ]; then
             echo "Type checking backend..."
-            $DOCKER_COMPOSE exec backend mypy . --ignore-missing-imports
+            $DOCKER_COMPOSE exec backend mypy . --config-file pyproject.toml
         fi
         if [ "$TARGET" == "frontend" ] || [ "$TARGET" == "all" ]; then
             echo "Type checking frontend..."

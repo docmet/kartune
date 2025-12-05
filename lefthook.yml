@@ -25,7 +25,7 @@ pre-commit:
       glob: "backend/**/*.py"
       run: |
         echo "🔍 Type checking backend..."
-        docker compose exec -T backend mypy . --ignore-missing-imports || true
+        docker compose exec -T backend mypy . --config-file pyproject.toml || true
         
     # Frontend linting
     frontend-lint:
