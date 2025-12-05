@@ -120,7 +120,9 @@ async def upload_telemetry(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     # Save file
-    upload_dir = "/app/uploads"
+    from app.core.config import settings
+
+    upload_dir = settings.UPLOAD_DIR
     os.makedirs(upload_dir, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

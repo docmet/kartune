@@ -1,9 +1,12 @@
+import tempfile
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.api.deps import get_db
+from app.core.config import settings
 from app.core.database import Base
 from app.main import app
 
@@ -11,6 +14,16 @@ from app.main import app
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+# Override upload directory for tests
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_upload_dir():
+    """Create a temporary upload directory for tests"""
+    temp_dir = tempfile.mkdtemp()
+    settings.UPLOAD_DIR = temp_dir
+    yield temp_dir
+    # Cleanup is handled by tempfile
 
 
 def override_get_db():
