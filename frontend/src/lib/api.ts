@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// Use empty string for production (nginx proxy), localhost:8000 for dev
+// Check for undefined specifically, not falsy, so empty string works
+const baseURL = process.env.NEXT_PUBLIC_API_URL === undefined
+    ? 'http://localhost:8000'
+    : process.env.NEXT_PUBLIC_API_URL;
+
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },
