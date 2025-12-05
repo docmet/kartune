@@ -27,11 +27,12 @@ lefthook install
 ```
 
 This will set up pre-commit hooks that:
-- ✅ Validate conventional commit messages
 - ✅ Auto-fix linting issues with ruff (backend)
-- ✅ Run type checking with mypy (backend)
+- ✅ Run type checking with mypy (backend) - warnings only, won't block
 - ✅ Auto-fix linting issues with ESLint (frontend)
 - ✅ Automatically stage fixed files
+
+**Note:** Conventional commit validation is handled by CI, not pre-commit hooks.
 
 ## CLI Commands
 
