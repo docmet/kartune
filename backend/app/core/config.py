@@ -46,4 +46,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings(_env_file=None)  # type: ignore[call-arg]
-

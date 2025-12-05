@@ -1,5 +1,4 @@
 pre-commit:
-  parallel: true
   commands:
     # Backend linting with auto-fix
     backend-lint:
@@ -8,22 +7,22 @@ pre-commit:
         echo "🔍 Running ruff on backend..."
         docker compose exec -T backend ruff check . --fix
         docker compose exec -T backend ruff format .
-        
+
     # Backend type checking
     backend-typecheck:
       glob: "backend/**/*.py"
       run: |
         echo "🔍 Type checking backend..."
         docker compose exec -T backend mypy . --config-file pyproject.toml || true
-        
+
     # Frontend linting
     frontend-lint:
       glob: "frontend/**/*.{ts,tsx,js,jsx}"
       run: |
         echo "🔍 Linting frontend..."
         docker compose exec -T frontend npm run lint -- --fix || true
-        
-    # Stage auto-fixed files
+
+    # Stage auto-fixed files - runs AFTER all linting
     stage-fixes:
       run: |
         echo "📝 Staging auto-fixed files..."
