@@ -53,6 +53,7 @@ class Session(Base):
     engine = relationship("Engine", backref="sessions")
     track = relationship("Track", backref="sessions")
     telemetry_data = relationship("TelemetryData", back_populates="session", uselist=False)
+    laps = relationship("Lap", back_populates="session", cascade="all, delete-orphan")
 
 
 class TelemetryData(Base):
