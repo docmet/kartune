@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Timer, Upload, ChevronDown, ChevronUp, Filter, RefreshCw } from 'lucide-react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ export default function LapsPage() {
     const [sortBy, setSortBy] = useState<'time' | 'date'>('date');
     const [sortAsc, setSortAsc] = useState(false);
 
-    const fetchLaps = async () => {
+    const fetchLaps = useCallback(async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
@@ -47,11 +47,11 @@ export default function LapsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [validOnly]);
 
     useEffect(() => {
         fetchLaps();
-    }, [validOnly]);
+    }, [fetchLaps]);
 
     const formatLapTime = (ms: number) => {
         const minutes = Math.floor(ms / 60000);
@@ -84,7 +84,7 @@ export default function LapsPage() {
     );
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-6">
+        <div className="text-white p-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
