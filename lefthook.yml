@@ -4,6 +4,7 @@ pre-commit:
     backend-lint:
       glob: "backend/**/*.py"
       run: |
+        set -e
         echo "🔍 Running ruff on backend..."
         docker compose exec -T backend ruff check . --fix
         docker compose exec -T backend ruff format .

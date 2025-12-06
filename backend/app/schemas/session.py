@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
+from .track import TrackResponse
+
 
 class SessionBase(BaseModel):
     driver_id: int
@@ -66,9 +68,6 @@ class SessionUpdate(BaseModel):
     position: Optional[int] = None
     driver_feedback: Optional[str] = None
     engineer_notes: Optional[str] = None
-
-
-from .track import TrackResponse
 
 
 class SessionResponse(SessionBase):

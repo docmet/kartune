@@ -349,7 +349,7 @@ def get_lap_telemetry(
         return data_points
     except Exception as e:
         print(f"Error parsing telemetry: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to parse telemetry file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to parse telemetry file: {str(e)}") from e
 
 
 @router.delete("/{lap_id}", status_code=status.HTTP_204_NO_CONTENT)
