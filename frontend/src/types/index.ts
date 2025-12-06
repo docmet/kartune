@@ -48,6 +48,7 @@ export interface Session {
     telemetry_file_path?: string;
     created_at: string;
     updated_at?: string;
+    track?: Track;
 }
 
 export interface TelemetryAnalysis {
@@ -86,9 +87,43 @@ export interface Kart {
 
 export interface Engine {
     id: number;
-    make: string;
+    brand: string;
     model: string;
     serial_number?: string;
-    total_hours?: number;
+    hours_since_rebuild: number;
+}
+
+export interface TelemetryDataPoint {
+    distance_m: number;
+    time_s: number;
+    speed_kmh: number;
+    throttle_pct: number;
+    brake_pct: number;
+    steering_pct: number;
+    gear: number;
+    rpm: number;
+    g_lat?: number;
+    g_long?: number;
+}
+
+export interface Lap {
+    id: number;
     team_id: number;
+    driver_id: number;
+    track_id: number;
+    kart_id?: number;
+    session_id?: number;
+    lap_number: number;
+    lap_time_ms: number;
+    sector1_ms?: number;
+    sector2_ms?: number;
+    sector3_ms?: number;
+    sector4_ms?: number;
+    valid: boolean;
+    weather?: string;
+    driver_name?: string;
+    track_name?: string;
+    car_name?: string;
+    recorded_at?: string;
+    has_detailed_telemetry?: boolean;
 }

@@ -5,7 +5,8 @@ Laps API endpoints for uploading and managing telemetry lap data
 import hashlib
 import os
 from datetime import datetime
-from typing import List
+from pathlib import Path
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
@@ -20,6 +21,7 @@ from app.models.session import Session as RacingSession  # Avoid conflict with d
 from app.models.track import Track
 from app.models.user import User
 from app.schemas.lap import LapResponse, LapUploadResponse
+from app.schemas.telemetry import TelemetryDataPoint as TelemetryDataPointSchema
 from app.services.parsers import ParserRegistry
 from app.services.parsers.rf2_parser import RF2Parser  # noqa: F401 - registers parser
 
@@ -314,6 +316,40 @@ def get_lap(
     if not lap:
         raise HTTPException(status_code=404, detail="Lap not found")
     return lap
+
+
+@router.get("/{lap_id}/telemetry", response_model=List[TelemetryDataPointSchema])
+def get_lap_telemetry(
+    lap_id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_user),
+) -> Any:
+    """Stream telemetry data for a specific lap"""
+    lap = db.query(Lap).filter(Lap.id == lap_id, Lap.team_id == current_user.team_id).first()
+    if not lap:
+        raise HTTPException(status_code=404, detail="Lap not found")
+
+    if not lap.file_path or not os.path.exists(lap.file_path):
+        raise HTTPException(status_code=404, detail="Telemetry file not found")
+
+    # Detect parser
+    file_path = Path(lap.file_path)
+    parser = ParserRegistry.detect_parser(file_path)
+    if not parser:
+        # Fallback to source_format
+        parser = ParserRegistry.get_parser(lap.source_format)
+
+    if not parser:
+        raise HTTPException(status_code=500, detail=f"No parser available for format: {lap.source_format}")
+
+    try:
+        # Stream data
+        # Note: For very large files, we might want to implement downsampling here
+        data_points = list(parser.stream_telemetry(file_path))
+        return data_points
+    except Exception as e:
+        print(f"Error parsing telemetry: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to parse telemetry file: {str(e)}")
 
 
 @router.delete("/{lap_id}", status_code=status.HTTP_204_NO_CONTENT)

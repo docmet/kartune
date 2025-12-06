@@ -60,8 +60,8 @@ def seed_data():
                     "max_hr": random.randint(185, 205),
                     "vo2_max": round(random.uniform(50.0, 65.0), 1),
                     "blood_type": random.choice(["A+", "O+", "B+"]),
-                    "neck_circumference_cm": round(random.uniform(35.0, 42.0), 1)
-                }
+                    "neck_circumference_cm": round(random.uniform(35.0, 42.0), 1),
+                },
             },
         )
         if response.status_code == 201:

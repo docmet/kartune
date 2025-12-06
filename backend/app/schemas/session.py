@@ -68,12 +68,18 @@ class SessionUpdate(BaseModel):
     engineer_notes: Optional[str] = None
 
 
+from .track import TrackResponse
+
+
 class SessionResponse(SessionBase):
     id: int
     team_id: int
     telemetry_file_path: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+
+    # Relations
+    track: Optional[TrackResponse] = None
 
     class Config:
         from_attributes = True

@@ -11,7 +11,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Calendar, Activity, Users, Map, Car } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -24,8 +24,11 @@ export default function Navigation() {
     const navItems = [
         { name: "Dashboard", href: "/dashboard" },
         { name: "Laps", href: "/dashboard/laps" },
-        { name: "Sessions", href: "/dashboard/sessions" },
-        { name: "Drivers", href: "/dashboard/drivers" },
+        { name: "Sessions", href: "/dashboard/sessions", icon: Calendar },
+        { name: "Analysis", href: "/dashboard/analysis", icon: Activity },
+        { name: "Drivers", href: "/dashboard/drivers", icon: Users },
+        { name: "Tracks", href: "/dashboard/tracks", icon: Map },
+        { name: "Karts", href: "/dashboard/karts", icon: Car },
     ];
 
     const NavLinks = () => (

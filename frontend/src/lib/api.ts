@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Lap, TelemetryDataPoint, Session } from '@/types';
 
 // Use empty string for production (nginx proxy), localhost:8000 for dev
 // Check for undefined specifically, not falsy, so empty string works
@@ -26,6 +27,39 @@ api.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
+// Define API methods using the 'api' axios instance
+export const lapsApi = {
+    async getLaps(params?: any) {
+        return api.get<Lap[]>("/api/laps", { params });
+    },
+
+    async getLap(id: number) {
+        return api.get<Lap>(`/api/laps/${id}`);
+    },
+
+    async getLapTelemetry(id: number) {
+        return api.get<TelemetryDataPoint[]>(`/api/laps/${id}/telemetry`);
+    },
+
+    async deleteLap(id: number) {
+        return api.delete(`/api/laps/${id}`);
+    },
+};
+
+export const sessionsApi = {
+    async getSessions(params?: any) {
+        return api.get<Session[]>("/api/sessions", { params });
+    },
+
+    async getSession(id: number) {
+        return api.get<Session>(`/api/sessions/${id}`);
+    },
+
+    async deleteSession(id: number) {
+        return api.delete(`/api/sessions/${id}`);
+    },
+};
 
 // Add a response interceptor to handle 401 errors
 api.interceptors.response.use(

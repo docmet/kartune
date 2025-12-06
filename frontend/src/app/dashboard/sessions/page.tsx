@@ -7,7 +7,8 @@ import { Session, Driver, Track, Kart, TelemetryAnalysis } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, X, Pencil, Loader2 } from "lucide-react";
+import { RefreshCw, X, Pencil, Loader2, Activity, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
     Dialog,
     DialogContent,
@@ -20,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function SessionsPage() {
+    const router = useRouter();
     const { user } = useAuth();
     const [sessions, setSessions] = useState<Session[]>([]);
     const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -140,6 +142,17 @@ export default function SessionsPage() {
             alert("Failed to upload telemetry: " + (error.response?.data?.detail || error.message));
         } finally {
             setUploadingFile(null);
+        }
+    };
+
+    const handleDeleteClick = async (session: Session) => {
+        if (!confirm("Are you sure you want to delete this session?")) return;
+        try {
+            await api.delete(`/api/sessions/${session.id}`);
+            fetchSessions();
+        } catch (error) {
+            console.error("Failed to delete session", error);
+            alert("Failed to delete session");
         }
     };
 
@@ -275,10 +288,18 @@ export default function SessionsPage() {
                                                     <p>{new Date(session.session_date).toLocaleDateString()} • {session.session_type || "Practice"}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right flex flex-col items-end gap-2">
-                                                <Button variant="ghost" size="sm" onClick={() => handleEditClick(session)}>
-                                                    <Pencil className="h-4 w-4 text-zinc-400 hover:text-white" />
-                                                </Button>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/analysis?session_id=${session.id}`)}>
+                                                        <Activity className="h-4 w-4 text-zinc-400 hover:text-white" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" onClick={() => handleEditClick(session)}>
+                                                        <Pencil className="h-4 w-4 text-zinc-400 hover:text-white" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(session)}>
+                                                        <Trash2 className="h-4 w-4 text-zinc-400 hover:text-red-400" />
+                                                    </Button>
+                                                </div>
                                                 {session.best_lap_time_ms && (
                                                     <div>
                                                         <p className="text-sm text-zinc-400">Best Lap</p>
@@ -332,7 +353,7 @@ export default function SessionsPage() {
                             <Label>Driver</Label>
                             <Select
                                 value={editFormData.driver_id?.toString()}
-                                onValueChange={(val) => setEditFormData({ ...editFormData, driver_id: parseInt(val) })}
+                                onValueChange={(val: string) => setEditFormData({ ...editFormData, driver_id: parseInt(val) })}
                             >
                                 <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
                                     <SelectValue placeholder="Select Driver" />
@@ -348,7 +369,7 @@ export default function SessionsPage() {
                             <Label>Track</Label>
                             <Select
                                 value={editFormData.track_id?.toString()}
-                                onValueChange={(val) => setEditFormData({ ...editFormData, track_id: parseInt(val) })}
+                                onValueChange={(val: string) => setEditFormData({ ...editFormData, track_id: parseInt(val) })}
                             >
                                 <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
                                     <SelectValue placeholder="Select Track" />
@@ -364,7 +385,7 @@ export default function SessionsPage() {
                             <Label>Kart</Label>
                             <Select
                                 value={editFormData.kart_id?.toString() || "none"}
-                                onValueChange={(val) => setEditFormData({ ...editFormData, kart_id: val === "none" ? undefined : parseInt(val) })}
+                                onValueChange={(val: string) => setEditFormData({ ...editFormData, kart_id: val === "none" ? undefined : parseInt(val) })}
                             >
                                 <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
                                     <SelectValue placeholder="Select Kart" />
@@ -381,7 +402,7 @@ export default function SessionsPage() {
                             <Label>Session Type</Label>
                             <Select
                                 value={editFormData.session_type || "Practice"}
-                                onValueChange={(val) => setEditFormData({ ...editFormData, session_type: val })}
+                                onValueChange={(val: string) => setEditFormData({ ...editFormData, session_type: val })}
                             >
                                 <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
                                     <SelectValue placeholder="Select Type" />
