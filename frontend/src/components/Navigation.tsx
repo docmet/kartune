@@ -23,6 +23,7 @@ export default function Navigation() {
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard" },
+        { name: "Laps", href: "/dashboard/laps" },
         { name: "Sessions", href: "/sessions" },
     ];
 
@@ -36,8 +37,8 @@ export default function Navigation() {
                         href={item.href}
                         onClick={() => setIsOpen(false)}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-smooth ${isActive
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
                             }`}
                     >
                         {item.name}

@@ -44,12 +44,12 @@ def find_or_create_driver(db: Session, name: str, team_id: int) -> tuple[Driver,
     return driver, True
 
 
-def find_or_create_track(db: Session, name: str, team_id: int) -> tuple[Track, bool]:
-    """Find existing track or create new one"""
-    track = db.query(Track).filter(Track.name == name, Track.team_id == team_id).first()
+def find_or_create_track(db: Session, name: str) -> tuple[Track, bool]:
+    """Find existing track or create new one (tracks are global, not team-specific)"""
+    track = db.query(Track).filter(Track.name == name).first()
     if track:
         return track, False
-    track = Track(name=name, team_id=team_id)
+    track = Track(name=name)
     db.add(track)
     db.flush()
     return track, True
@@ -57,10 +57,11 @@ def find_or_create_track(db: Session, name: str, team_id: int) -> tuple[Track, b
 
 def find_or_create_kart(db: Session, name: str, team_id: int) -> tuple[Kart, bool]:
     """Find existing kart or create new one"""
-    kart = db.query(Kart).filter(Kart.name == name, Kart.team_id == team_id).first()
+    # Kart model uses 'chassis_brand' not 'name'
+    kart = db.query(Kart).filter(Kart.chassis_brand == name, Kart.team_id == team_id).first()
     if kart:
         return kart, False
-    kart = Kart(name=name, team_id=team_id, kart_type="rental")
+    kart = Kart(chassis_brand=name, chassis_model=name, team_id=team_id)
     db.add(kart)
     db.flush()
     return kart, True
@@ -122,7 +123,7 @@ async def upload_telemetry_files(
             if driver_created:
                 created_drivers.add(parsed.metadata.driver_name)
 
-            track, track_created = find_or_create_track(db, parsed.metadata.track_name, int(current_user.team_id))
+            track, track_created = find_or_create_track(db, parsed.metadata.track_name)
             if track_created:
                 created_tracks.add(parsed.metadata.track_name)
 
