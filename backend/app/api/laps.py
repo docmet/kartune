@@ -118,15 +118,15 @@ async def upload_telemetry_files(
                 continue
 
             # Find or create entities
-            driver, driver_created = find_or_create_driver(db, parsed.metadata.driver_name, current_user.team_id)
+            driver, driver_created = find_or_create_driver(db, parsed.metadata.driver_name, int(current_user.team_id))
             if driver_created:
                 created_drivers.add(parsed.metadata.driver_name)
 
-            track, track_created = find_or_create_track(db, parsed.metadata.track_name, current_user.team_id)
+            track, track_created = find_or_create_track(db, parsed.metadata.track_name, int(current_user.team_id))
             if track_created:
                 created_tracks.add(parsed.metadata.track_name)
 
-            kart, kart_created = find_or_create_kart(db, parsed.metadata.car_name, current_user.team_id)
+            kart, kart_created = find_or_create_kart(db, parsed.metadata.car_name, int(current_user.team_id))
             if kart_created:
                 created_karts.add(parsed.metadata.car_name)
 
@@ -172,7 +172,7 @@ async def upload_telemetry_files(
 
     return LapUploadResponse(
         uploaded=len(uploaded_laps),
-        laps=uploaded_laps,
+        laps=[LapResponse.model_validate(lap) for lap in uploaded_laps],
         errors=errors,
         created_drivers=list(created_drivers),
         created_tracks=list(created_tracks),
