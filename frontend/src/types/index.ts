@@ -69,5 +69,26 @@ export interface Driver {
     height_cm?: number;
     gender?: string;
     experience_level?: string;
+    physical_strength?: number;
+    bio_metrics?: Record<string, any>;
     notes?: string;
+}
+
+export interface Kart {
+    id: number;
+    name: string;
+    number?: string;
+    chassis_make?: string;
+    chassis_model?: string;
+    year?: number;
+    team_id: number;
+}
+
+export interface Engine {
+    id: number;
+    make: string;
+    model: string;
+    serial_number?: string;
+    total_hours?: number;
+    team_id: number;
 }

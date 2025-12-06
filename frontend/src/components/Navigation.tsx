@@ -24,7 +24,8 @@ export default function Navigation() {
     const navItems = [
         { name: "Dashboard", href: "/dashboard" },
         { name: "Laps", href: "/dashboard/laps" },
-        { name: "Sessions", href: "/sessions" },
+        { name: "Sessions", href: "/dashboard/sessions" },
+        { name: "Drivers", href: "/dashboard/drivers" },
     ];
 
     const NavLinks = () => (

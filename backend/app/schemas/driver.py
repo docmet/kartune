@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -11,6 +11,8 @@ class DriverBase(BaseModel):
     height_cm: Optional[float] = None
     gender: Optional[str] = None
     experience_level: Optional[str] = None
+    physical_strength: Optional[int] = None
+    bio_metrics: Optional[Dict[str, Any]] = None
     notes: Optional[str] = None
 
 
@@ -25,6 +27,8 @@ class DriverUpdate(BaseModel):
     height_cm: Optional[float] = None
     gender: Optional[str] = None
     experience_level: Optional[str] = None
+    physical_strength: Optional[int] = None
+    bio_metrics: Optional[Dict[str, Any]] = None
     notes: Optional[str] = None
 
 

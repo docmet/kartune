@@ -34,8 +34,12 @@ def create_session(
 def list_sessions(
     skip: int = 0,
     limit: int = 100,
-    driver_id: int = None,
-    track_id: int = None,
+    driver_id: int | None = None,
+    track_id: int | None = None,
+    kart_id: int | None = None,
+    session_type: str | None = None,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_user),
 ):
@@ -46,8 +50,16 @@ def list_sessions(
         query = query.filter(RacingSession.driver_id == driver_id)
     if track_id:
         query = query.filter(RacingSession.track_id == track_id)
+    if kart_id:
+        query = query.filter(RacingSession.kart_id == kart_id)
+    if session_type:
+        query = query.filter(RacingSession.session_type == session_type)
+    if date_from:
+        query = query.filter(RacingSession.session_date >= date_from)
+    if date_to:
+        query = query.filter(RacingSession.session_date <= date_to)
 
-    sessions = query.offset(skip).limit(limit).all()
+    sessions = query.order_by(RacingSession.session_date.desc()).offset(skip).limit(limit).all()
     return sessions
 
 

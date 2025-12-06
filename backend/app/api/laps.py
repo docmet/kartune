@@ -9,12 +9,14 @@ from typing import List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 
 from app.api import deps
 from app.core.config import settings
 from app.models.driver import Driver
 from app.models.equipment import Kart
 from app.models.lap import Lap
+from app.models.session import Session as RacingSession  # Avoid conflict with db Session
 from app.models.track import Track
 from app.models.user import User
 from app.schemas.lap import LapResponse, LapUploadResponse
@@ -67,6 +69,57 @@ def find_or_create_kart(db: Session, name: str, team_id: int) -> tuple[Kart, boo
     return kart, True
 
 
+def find_or_create_session(
+    db: Session,
+    team_id: int,
+    driver_id: int,
+    track_id: int,
+    kart_id: int,
+    session_date: datetime,
+) -> tuple[RacingSession, bool]:
+    """
+    Find existing session or create new one based on context.
+    Matches by team, driver, track, kart, and date (same day).
+    """
+    # Filter by date range (start of day to end of day)
+    start_of_day = session_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = session_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    existing_session = (
+        db.query(RacingSession)
+        .filter(
+            RacingSession.team_id == team_id,
+            RacingSession.driver_id == driver_id,
+            RacingSession.track_id == track_id,
+            RacingSession.kart_id == kart_id,
+            RacingSession.session_date >= start_of_day,
+            RacingSession.session_date <= end_of_day,
+            # Prefer sessions created by telemetry import
+            RacingSession.data_source == "telemetry_import",
+        )
+        .first()
+    )
+
+    if existing_session:
+        return existing_session, False
+
+    # Create new session
+    new_session = RacingSession(
+        team_id=team_id,
+        driver_id=driver_id,
+        track_id=track_id,
+        kart_id=kart_id,
+        session_date=session_date,
+        session_type="Practice",  # Default, can be updated later
+        data_source="telemetry_import",
+        weather_condition="sunny",  # Default, will be updated from lap data
+        track_condition="dry",
+    )
+    db.add(new_session)
+    db.flush()
+    return new_session, True
+
+
 @router.post("/upload", response_model=LapUploadResponse)
 async def upload_telemetry_files(
     files: List[UploadFile] = File(...),
@@ -82,6 +135,7 @@ async def upload_telemetry_files(
     created_drivers: set[str] = set()
     created_tracks: set[str] = set()
     created_karts: set[str] = set()
+    touched_session_ids: set[int] = set()
 
     # Ensure upload directory exists
     upload_dir = os.path.join(settings.UPLOAD_DIR, str(current_user.team_id), "telemetry")
@@ -131,6 +185,21 @@ async def upload_telemetry_files(
             if kart_created:
                 created_karts.add(parsed.metadata.car_name)
 
+            # Find or create session
+            session, _ = find_or_create_session(
+                db,
+                int(current_user.team_id),
+                driver.id,
+                track.id,
+                kart.id,
+                parsed.metadata.session_date,
+            )
+            touched_session_ids.add(session.id)
+
+            # Update session weather if available (first valid one wins)
+            if parsed.lap_summary.weather and session.weather_condition == "sunny":
+                session.weather_condition = parsed.lap_summary.weather
+
             # Create lap record
             lap = Lap(
                 team_id=current_user.team_id,
@@ -158,12 +227,41 @@ async def upload_telemetry_files(
                 kart_id=kart.id,
                 recorded_at=parsed.metadata.session_date,
                 has_detailed_telemetry=parsed.has_detailed_telemetry,
+                session_id=session.id,
             )
             db.add(lap)
             uploaded_laps.append(lap)
 
         except Exception as e:
             errors.append(f"{file.filename}: {str(e)}")
+
+    db.commit()
+
+    # Update statistics for touched sessions
+    for session_id in touched_session_ids:
+        session = db.query(RacingSession).filter(RacingSession.id == session_id).first()
+        if session:
+            # Re-query laps to get aggregate stats
+            stats = (
+                db.query(
+                    func.count(Lap.id).label("total_laps"),
+                    func.min(Lap.lap_time_ms).label("best_lap"),
+                    func.avg(Lap.lap_time_ms).label("avg_lap"),
+                )
+                .filter(Lap.session_id == session_id)
+                .filter(Lap.valid == True)  # Only count valid laps for time stats
+                .first()
+            )
+
+            # Get total count including invalid
+            total_count = db.query(func.count(Lap.id)).filter(Lap.session_id == session_id).scalar()
+
+            if stats:
+                session.total_laps = total_count
+                session.best_lap_time_ms = stats.best_lap
+                session.average_lap_time_ms = int(stats.avg_lap) if stats.avg_lap else None
+
+            db.add(session)
 
     db.commit()
 

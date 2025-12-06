@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -16,6 +16,8 @@ class Driver(Base):
     height_cm = Column(Float)
     gender = Column(String)  # M/F/Other
     experience_level = Column(String)  # beginner/intermediate/advanced/expert
+    physical_strength = Column(Integer)  # 1-100 scale
+    bio_metrics = Column(JSON)  # Flexible JSON for other metrics (heart rate, etc.)
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

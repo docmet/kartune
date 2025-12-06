@@ -7,6 +7,13 @@ from app.core.config import settings
 
 # Import Base and all models
 from app.core.database import Base
+from app.models.driver import Driver  # noqa
+from app.models.equipment import Engine, Kart  # noqa
+from app.models.lap import Lap  # noqa
+from app.models.session import Session  # noqa
+from app.models.team import Team  # noqa
+from app.models.track import Track  # noqa
+from app.models.user import User  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
