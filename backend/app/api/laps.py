@@ -189,16 +189,16 @@ async def upload_telemetry_files(
             session, _ = find_or_create_session(
                 db,
                 int(current_user.team_id),
-                driver.id,
-                track.id,
-                kart.id,
+                int(driver.id),  # type: ignore
+                int(track.id),  # type: ignore
+                int(kart.id),  # type: ignore
                 parsed.metadata.session_date,
             )
-            touched_session_ids.add(session.id)
+            touched_session_ids.add(int(session.id))  # type: ignore
 
             # Update session weather if available (first valid one wins)
             if parsed.lap_summary.weather and session.weather_condition == "sunny":
-                session.weather_condition = parsed.lap_summary.weather
+                session.weather_condition = str(parsed.lap_summary.weather)
 
             # Create lap record
             lap = Lap(
@@ -222,12 +222,12 @@ async def upload_telemetry_files(
                 track_temp_c=parsed.lap_summary.track_temp_c,
                 air_temp_c=parsed.lap_summary.air_temp_c,
                 tire_compound=parsed.lap_summary.tire_compound,
-                driver_id=driver.id,
-                track_id=track.id,
-                kart_id=kart.id,
+                driver_id=int(driver.id),  # type: ignore
+                track_id=int(track.id),  # type: ignore
+                kart_id=int(kart.id),  # type: ignore
                 recorded_at=parsed.metadata.session_date,
                 has_detailed_telemetry=parsed.has_detailed_telemetry,
-                session_id=session.id,
+                session_id=int(session.id),  # type: ignore
             )
             db.add(lap)
             uploaded_laps.append(lap)
@@ -249,7 +249,7 @@ async def upload_telemetry_files(
                     func.avg(Lap.lap_time_ms).label("avg_lap"),
                 )
                 .filter(Lap.session_id == session_id)
-                .filter(Lap.valid == True)  # Only count valid laps for time stats
+                .filter(Lap.valid.is_(True))  # Only count valid laps for time stats
                 .first()
             )
 
@@ -259,7 +259,7 @@ async def upload_telemetry_files(
             if stats:
                 session.total_laps = total_count
                 session.best_lap_time_ms = stats.best_lap
-                session.average_lap_time_ms = int(stats.avg_lap) if stats.avg_lap else None
+                session.average_lap_time_ms = int(stats.avg_lap) if stats.avg_lap else None  # type: ignore
 
             db.add(session)
 
