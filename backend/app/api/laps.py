@@ -200,7 +200,7 @@ async def upload_telemetry_files(
 
             # Update session weather if available (first valid one wins)
             if parsed.lap_summary.weather and session.weather_condition == "sunny":
-                session.weather_condition = str(parsed.lap_summary.weather)
+                session.weather_condition = str(parsed.lap_summary.weather)  # type: ignore
 
             # Create lap record
             lap = Lap(
@@ -241,8 +241,8 @@ async def upload_telemetry_files(
 
     # Update statistics for touched sessions
     for session_id in touched_session_ids:
-        session = db.query(RacingSession).filter(RacingSession.id == session_id).first()
-        if session:
+        session_obj = db.query(RacingSession).filter(RacingSession.id == session_id).first()
+        if session_obj:
             # Re-query laps to get aggregate stats
             stats = (
                 db.query(
@@ -259,11 +259,11 @@ async def upload_telemetry_files(
             total_count = db.query(func.count(Lap.id)).filter(Lap.session_id == session_id).scalar()
 
             if stats:
-                session.total_laps = total_count
-                session.best_lap_time_ms = stats.best_lap
-                session.average_lap_time_ms = int(stats.avg_lap) if stats.avg_lap else None  # type: ignore
+                session_obj.total_laps = total_count
+                session_obj.best_lap_time_ms = stats.best_lap
+                session_obj.average_lap_time_ms = int(stats.avg_lap) if stats.avg_lap else None  # type: ignore
 
-            db.add(session)
+            db.add(session_obj)
 
     db.commit()
 
@@ -337,7 +337,7 @@ def get_lap_telemetry(
     parser = ParserRegistry.detect_parser(file_path)
     if not parser:
         # Fallback to source_format
-        parser = ParserRegistry.get_parser(lap.source_format)
+        parser = ParserRegistry.get_parser(str(lap.source_format))
 
     if not parser:
         raise HTTPException(status_code=500, detail=f"No parser available for format: {lap.source_format}")

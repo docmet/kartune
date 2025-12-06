@@ -13,15 +13,16 @@ pre-commit:
     backend-typecheck:
       glob: "backend/**/*.py"
       run: |
+        set -e
         echo "🔍 Type checking backend..."
-        docker compose exec -T backend mypy . --config-file pyproject.toml || true
+        docker compose exec -T backend mypy . --config-file pyproject.toml
 
     # Frontend linting
     frontend-lint:
       glob: "frontend/**/*.{ts,tsx,js,jsx}"
       run: |
         echo "🔍 Linting frontend..."
-        docker compose exec -T frontend npm run lint -- --fix || true
+        docker compose exec -T frontend npm run lint -- --fix
 
     # Stage auto-fixed files - runs AFTER all linting
     stage-fixes:
