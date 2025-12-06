@@ -18,7 +18,6 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
     DialogFooter,
 } from "@/components/ui/dialog";
 import {
@@ -31,7 +30,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { Pencil, Loader2 } from "lucide-react";
+
+interface BioMetricsData {
+    resting_hr?: number;
+    max_hr?: number;
+    vo2_max?: number;
+    blood_type?: string;
+    allergies?: string;
+    dominant_hand?: string;
+    neck_circumference_cm?: number;
+}
 
 export default function DriversPage() {
     const { user } = useAuth();
@@ -43,7 +53,7 @@ export default function DriversPage() {
 
     // Form state
     const [formData, setFormData] = useState<Partial<Driver>>({});
-    const [bioMetricsJson, setBioMetricsJson] = useState("");
+    const [bioMetrics, setBioMetrics] = useState<BioMetricsData>({});
 
     useEffect(() => {
         if (user) {
@@ -74,7 +84,19 @@ export default function DriversPage() {
             physical_strength: driver.physical_strength,
             notes: driver.notes,
         });
-        setBioMetricsJson(JSON.stringify(driver.bio_metrics || {}, null, 2));
+
+        // Parse bio metrics or default to empty
+        const bm = driver.bio_metrics || {};
+        setBioMetrics({
+            resting_hr: bm.resting_hr,
+            max_hr: bm.max_hr,
+            vo2_max: bm.vo2_max,
+            blood_type: bm.blood_type,
+            allergies: bm.allergies,
+            dominant_hand: bm.dominant_hand,
+            neck_circumference_cm: bm.neck_circumference_cm,
+        });
+
         setIsDialogOpen(true);
     };
 
@@ -83,18 +105,9 @@ export default function DriversPage() {
 
         setSaving(true);
         try {
-            let parsedBioMetrics = {};
-            try {
-                parsedBioMetrics = JSON.parse(bioMetricsJson);
-            } catch (e) {
-                alert("Invalid JSON for Bio Metrics");
-                setSaving(false);
-                return;
-            }
-
             const updateData = {
                 ...formData,
-                bio_metrics: parsedBioMetrics,
+                bio_metrics: bioMetrics,
             };
 
             await api.put<Driver>(`/api/drivers/${editingDriver.id}`, updateData);
@@ -110,6 +123,18 @@ export default function DriversPage() {
     };
 
     if (!user) return null;
+
+    const calculateAge = (dobString?: string) => {
+        if (!dobString) return "-";
+        const today = new Date();
+        const birthDate = new Date(dobString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
 
     return (
         <div className="py-10">
@@ -133,32 +158,40 @@ export default function DriversPage() {
                                     <TableHeader>
                                         <TableRow className="border-zinc-800 hover:bg-zinc-900/50">
                                             <TableHead className="text-zinc-400">Name</TableHead>
-                                            <TableHead className="text-zinc-400">Strength (1-100)</TableHead>
-                                            <TableHead className="text-zinc-400">Bio Metrics</TableHead>
-                                            <TableHead className="text-zinc-400">Notes</TableHead>
+                                            <TableHead className="text-zinc-400">Age</TableHead>
+                                            <TableHead className="text-zinc-400">Gender</TableHead>
+                                            <TableHead className="text-zinc-400">Physical (H/W)</TableHead>
+                                            <TableHead className="text-zinc-400">Strength</TableHead>
                                             <TableHead className="text-right text-zinc-400">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {drivers.map((driver) => (
-                                            <TableRow key={driver.id} className="border-zinc-800 hover:bg-zinc-800/50">
-                                                <TableCell className="font-medium text-white">{driver.name}</TableCell>
-                                                <TableCell className="text-zinc-300">
-                                                    {driver.physical_strength !== undefined && driver.physical_strength !== null
-                                                        ? driver.physical_strength
-                                                        : "-"}
-                                                </TableCell>
-                                                <TableCell className="text-zinc-300 font-mono text-xs max-w-xs truncate">
-                                                    {driver.bio_metrics ? JSON.stringify(driver.bio_metrics) : "-"}
-                                                </TableCell>
-                                                <TableCell className="text-zinc-300 max-w-xs truncate">{driver.notes || "-"}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" onClick={() => handleEditClick(driver)}>
-                                                        <Pencil className="h-4 w-4 text-zinc-400 hover:text-white" />
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
+                                        {drivers.map((driver) => {
+                                            return (
+                                                <TableRow key={driver.id} className="border-zinc-800 hover:bg-zinc-800/50">
+                                                    <TableCell className="font-medium text-white">{driver.name}</TableCell>
+                                                    <TableCell className="text-zinc-300">
+                                                        {calculateAge(driver.date_of_birth)}
+                                                    </TableCell>
+                                                    <TableCell className="text-zinc-300">
+                                                        {driver.gender || "-"}
+                                                    </TableCell>
+                                                    <TableCell className="text-zinc-300">
+                                                        {driver.height_cm ? `${driver.height_cm}cm` : "?"} / {driver.weight_kg ? `${driver.weight_kg}kg` : "?"}
+                                                    </TableCell>
+                                                    <TableCell className="text-zinc-300">
+                                                        {driver.physical_strength !== undefined && driver.physical_strength !== null
+                                                            ? driver.physical_strength
+                                                            : "-"}
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleEditClick(driver)}>
+                                                            <Pencil className="h-4 w-4 text-zinc-400 hover:text-white" />
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
                                     </TableBody>
                                 </Table>
                             </div>
@@ -168,94 +201,178 @@ export default function DriversPage() {
             </main>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+                <DialogContent className="bg-zinc-900 border-zinc-800 text-white sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Edit Driver: {editingDriver?.name}</DialogTitle>
+                        <DialogTitle className="text-xl">Edit Driver Profile</DialogTitle>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4 max-h-[600px] overflow-y-auto">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Name</Label>
-                                <Input
-                                    value={formData.name || ""}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="bg-zinc-950 border-zinc-700 text-white"
-                                />
+
+                    <div className="grid gap-6 py-4">
+                        {/* Personal Details Section */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Personal Details</h3>
+                            <div className="grid gap-4">
+                                <div className="space-y-2">
+                                    <Label>Full Name</Label>
+                                    <Input
+                                        value={formData.name || ""}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="bg-zinc-950 border-zinc-700 text-white"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Date of Birth</Label>
+                                        <Input
+                                            type="date"
+                                            value={formData.date_of_birth ? String(formData.date_of_birth).split('T')[0] : ""}
+                                            onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                                            className="bg-zinc-950 border-zinc-700 text-white"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Gender</Label>
+                                        <Select
+                                            value={formData.gender || ""}
+                                            onValueChange={(val: string) => setFormData({ ...formData, gender: val })}
+                                        >
+                                            <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
+                                                <SelectValue placeholder="Select Gender" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="M">Male</SelectItem>
+                                                <SelectItem value="F">Female</SelectItem>
+                                                <SelectItem value="Other">Other</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Weight (kg)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.1"
+                                            value={formData.weight_kg || ""}
+                                            onChange={(e) => setFormData({ ...formData, weight_kg: parseFloat(e.target.value) || undefined })}
+                                            className="bg-zinc-950 border-zinc-700 text-white"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Height (cm)</Label>
+                                        <Input
+                                            type="number"
+                                            value={formData.height_cm || ""}
+                                            onChange={(e) => setFormData({ ...formData, height_cm: parseFloat(e.target.value) || undefined })}
+                                            className="bg-zinc-950 border-zinc-700 text-white"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Separator className="bg-zinc-800" />
+
+                        {/* Bio Metrics Section */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Bio Metrics & Health</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Resting Heart Rate (bpm)</Label>
+                                    <Input
+                                        type="number"
+                                        value={bioMetrics.resting_hr || ""}
+                                        onChange={(e) => setBioMetrics({ ...bioMetrics, resting_hr: parseInt(e.target.value) || undefined })}
+                                        className="bg-zinc-950 border-zinc-700 text-white"
+                                        placeholder="e.g. 60"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Max Heart Rate (bpm)</Label>
+                                    <Input
+                                        type="number"
+                                        value={bioMetrics.max_hr || ""}
+                                        onChange={(e) => setBioMetrics({ ...bioMetrics, max_hr: parseInt(e.target.value) || undefined })}
+                                        className="bg-zinc-950 border-zinc-700 text-white"
+                                        placeholder="e.g. 190"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>VO2 Max (ml/kg/min)</Label>
+                                    <Input
+                                        type="number"
+                                        value={bioMetrics.vo2_max || ""}
+                                        onChange={(e) => setBioMetrics({ ...bioMetrics, vo2_max: parseFloat(e.target.value) || undefined })}
+                                        className="bg-zinc-950 border-zinc-700 text-white"
+                                        placeholder="e.g. 55.5"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Physical Strength Score (0-100)</Label>
+                                    <Input
+                                        type="number"
+                                        value={formData.physical_strength || ""}
+                                        onChange={(e) => setFormData({ ...formData, physical_strength: parseInt(e.target.value) || undefined })}
+                                        className="bg-zinc-950 border-zinc-700 text-white"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Blood Type</Label>
+                                    <Select
+                                        value={bioMetrics.blood_type || ""}
+                                        onValueChange={(val: string) => setBioMetrics({ ...bioMetrics, blood_type: val })}
+                                    >
+                                        <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
+                                            <SelectValue placeholder="Select Type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(type => (
+                                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Neck Circumference (cm)</Label>
+                                    <Input
+                                        type="number"
+                                        step="0.1"
+                                        value={bioMetrics.neck_circumference_cm || ""}
+                                        onChange={(e) => setBioMetrics({ ...bioMetrics, neck_circumference_cm: parseFloat(e.target.value) || undefined })}
+                                        className="bg-zinc-950 border-zinc-700 text-white"
+                                    />
+                                </div>
                             </div>
                             <div className="space-y-2">
-                                <Label>Date of Birth</Label>
+                                <Label>Allergies / Medical Notes</Label>
                                 <Input
-                                    type="date"
-                                    value={formData.date_of_birth ? String(formData.date_of_birth).split('T')[0] : ""}
-                                    onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                                    value={bioMetrics.allergies || ""}
+                                    onChange={(e) => setBioMetrics({ ...bioMetrics, allergies: e.target.value })}
                                     className="bg-zinc-950 border-zinc-700 text-white"
+                                    placeholder="e.g. Peanuts, Penicillin"
                                 />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+
+                        <Separator className="bg-zinc-800" />
+
+                        {/* Notes Section */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">Additional Information</h3>
                             <div className="space-y-2">
-                                <Label>Weight (kg)</Label>
-                                <Input
-                                    type="number"
-                                    step="0.1"
-                                    value={formData.weight_kg || ""}
-                                    onChange={(e) => setFormData({ ...formData, weight_kg: parseFloat(e.target.value) || undefined })}
-                                    className="bg-zinc-950 border-zinc-700 text-white"
+                                <Label>General Notes</Label>
+                                <Textarea
+                                    value={formData.notes || ""}
+                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    className="bg-zinc-950 border-zinc-700 text-white h-24"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Height (cm)</Label>
-                                <Input
-                                    type="number"
-                                    value={formData.height_cm || ""}
-                                    onChange={(e) => setFormData({ ...formData, height_cm: parseFloat(e.target.value) || undefined })}
-                                    className="bg-zinc-950 border-zinc-700 text-white"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Gender</Label>
-                            <Select
-                                value={formData.gender || ""}
-                                onValueChange={(val: string) => setFormData({ ...formData, gender: val })}
-                            >
-                                <SelectTrigger className="bg-zinc-950 border-zinc-700 text-white">
-                                    <SelectValue placeholder="Select Gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="M">Male</SelectItem>
-                                    <SelectItem value="F">Female</SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Physical Strength (0-100)</Label>
-                            <Input
-                                type="number"
-                                value={formData.physical_strength || ""}
-                                onChange={(e) => setFormData({ ...formData, physical_strength: parseInt(e.target.value) || undefined })}
-                                className="bg-zinc-950 border-zinc-700 text-white"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Bio Metrics (JSON)</Label>
-                            <Textarea
-                                value={bioMetricsJson}
-                                onChange={(e) => setBioMetricsJson(e.target.value)}
-                                className="bg-zinc-950 border-zinc-700 text-white font-mono h-32"
-                                placeholder='{"resting_hr": 60, "vo2_max": 55}'
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Notes</Label>
-                            <Textarea
-                                value={formData.notes || ""}
-                                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                className="bg-zinc-950 border-zinc-700 text-white"
-                            />
                         </div>
                     </div>
+
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="border-zinc-700 text-white hover:bg-zinc-800">
                             Cancel

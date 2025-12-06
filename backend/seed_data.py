@@ -54,6 +54,14 @@ def seed_data():
                 "weight_kg": random.uniform(60, 80),
                 "height_cm": random.uniform(160, 185),
                 "experience_level": random.choice(["beginner", "intermediate", "advanced"]),
+                "physical_strength": random.randint(50, 95),
+                "bio_metrics": {
+                    "resting_hr": random.randint(45, 65),
+                    "max_hr": random.randint(185, 205),
+                    "vo2_max": round(random.uniform(50.0, 65.0), 1),
+                    "blood_type": random.choice(["A+", "O+", "B+"]),
+                    "neck_circumference_cm": round(random.uniform(35.0, 42.0), 1)
+                }
             },
         )
         if response.status_code == 201:
