@@ -132,6 +132,7 @@ export function TelemetryCharts({ series }: TelemetryChartsProps) {
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46' }}
                                 itemStyle={{ color: '#fff' }}
+                                formatter={(val: number) => val.toFixed(2)}
                             />
                             <Legend />
                             {series.map(s => (
@@ -160,7 +161,11 @@ export function TelemetryCharts({ series }: TelemetryChartsProps) {
                             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                             <XAxis dataKey="distance" type="number" stroke="#666" unit="m" />
                             <YAxis stroke="#666" />
-                            <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46' }} />
+                            <Tooltip
+                                contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46' }}
+                                itemStyle={{ color: '#fff' }}
+                                formatter={(val: number) => val.toFixed(2)}
+                            />
                             {series.map(s => (
                                 <Line
                                     key={s.lapId}
@@ -186,7 +191,11 @@ export function TelemetryCharts({ series }: TelemetryChartsProps) {
                             <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                             <XAxis dataKey="distance" type="number" stroke="#666" unit="m" />
                             <YAxis stroke="#666" domain={[0, 100]} />
-                            <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46' }} />
+                            <Tooltip
+                                contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46' }}
+                                itemStyle={{ color: '#fff' }}
+                                formatter={(val: number) => val.toFixed(2)}
+                            />
                             {series.map(s => (
                                 <React.Fragment key={s.lapId}>
                                     <Line

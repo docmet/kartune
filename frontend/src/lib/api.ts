@@ -61,6 +61,36 @@ export const sessionsApi = {
     },
 };
 
+export const tracksApi = {
+    async getTracks() {
+        return api.get<any[]>("/api/tracks");
+    },
+    async createTrack(data: any) {
+        return api.post("/api/tracks", data);
+    },
+    async updateTrack(id: number, data: any) {
+        return api.put(`/api/tracks/${id}`, data);
+    },
+    async deleteTrack(id: number) {
+        return api.delete(`/api/tracks/${id}`);
+    },
+};
+
+export const kartsApi = {
+    async getKarts() {
+        return api.get<any[]>("/api/equipment/karts");
+    },
+    async createKart(data: any) {
+        return api.post("/api/equipment/karts", data);
+    },
+    async updateKart(id: number, data: any) {
+        return api.put(`/api/equipment/karts/${id}`, data);
+    },
+    async deleteKart(id: number) {
+        return api.delete(`/api/equipment/karts/${id}`);
+    },
+};
+
 // Add a response interceptor to handle 401 errors
 api.interceptors.response.use(
     (response) => response,
